@@ -17,7 +17,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  List<Map<String, String>> books = [];
+  List<Map<String, dynamic>> books = [];
 
   @override
   void initState() {
@@ -26,13 +26,11 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> loadBooks() async {
-  final data = await DatabaseHelper().getBooks();
-  setState(() {
-    books = data.map((book) => book.map((key, value) => MapEntry(key, value.toString()))).toList();
-  });
-}
-
-
+    final data = await DatabaseHelper().getBooks();
+    setState(() {
+      books = data;
+    });
+  }
 
   Future<void> addBook(String title, String author, String description) async {
     await DatabaseHelper().insertBook(title, author, description);
@@ -66,17 +64,15 @@ class _MyAppState extends State<MyApp> {
         '/register': (context) => RegisterPage(),
         '/home': (context) => HomePage(
               books: books,
-              onDelete: (index) => deleteBook(index),
+              onDelete: (id) => deleteBook(id), // GANTI index → id
               onLogout: logout,
             ),
         '/detail': (context) => DetailBookPage(
-              onEdit: (index, title, author, description) {
-                final bookId = int.parse(books[index]['id']!);
-                editBook(bookId, title, author, description);
+              onEdit: (id, title, author, description) {
+                editBook(id, title, author, description);
               },
-              onDelete: (index) {
-                final bookId = int.parse(books[index]['id']!);
-                deleteBook(bookId);
+              onDelete: (id) {
+                deleteBook(id);
               },
             ),
         '/add': (context) => AddEditBookPage(
